@@ -4,15 +4,28 @@ Go Implmentation of a priority locks.
 
 # Implementations
 
-## Triple Mutex
+## Priority Preference Lock
 
-Uses 3 mutexes to lock. Very basic and simple to reason about.
+Uses 3 mutexes along with a high priority counter to lock. Very basic and simple to reason about.
+This will generally force low priority lockers to wait until the high
+priority queue is drained before they are able to access the underlying
+lock. High priority locks will have preference.
 
-# TODO
 
-## Implementations
+# Example Usage
 
-### Priority queue lock
+```
 
-This would allow for a Priority FIFO-like queue of workers to obtain the lock to prevent any one worker from hogging requests, and give more priority to high priority workers.
+lock := NewPriorityPreferenceLock()
 
+// Assuming low priority tasks take some reasonable amount of time
+for _, t := myLowPriorityTasks {
+  go func(t, lock)
+}
+
+// assuming high priority tasks are important to interrupt low priority
+// inter-operations.
+for _, t := myHighPriorityTasks {
+  go func(t, lock)
+}
+```
